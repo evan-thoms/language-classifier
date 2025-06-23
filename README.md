@@ -1,0 +1,1 @@
+This project is a language classifier that identifies inputted text in Romance languages and English.
