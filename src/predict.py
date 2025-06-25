@@ -26,12 +26,12 @@ def predict_lang(sentence, model, vocab_dict, threshold=0.35):
 def main():
     print("Predicting Language")
     parser = argparse.ArgumentParser(description="Predict language of example sentence")
-    parser.add_argument("--input_sentences", type=str, default="", help="Example sentence to be predicted")
+    parser.add_argument("--input_sentence", type=str, default="", help="Example sentence to be predicted")
     args = parser.parse_args()
 
-    if args.input_sentences.strip():
+    if args.input_sentence.strip():
         print("Using inputted sentence")
-        test_sentences=[args.input_sentences]
+        test_sentences=[args.input_sentence]
     else:
         print("Using exapmle sentences")
         test_sentences = [
