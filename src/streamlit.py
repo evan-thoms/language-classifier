@@ -4,11 +4,16 @@ from model import LanguageClassifier
 from feature_extraction import word_to_ngram_features
 from data_loader import load_vocab_dict
 import numpy as np
+import os
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))        
+PROJECT_DIR = os.path.dirname(BASE_DIR)                      
+MODEL_PATH = os.path.join(PROJECT_DIR, "models", "best_model.pth")
+VOCAB_PATH = os.path.join(PROJECT_DIR, "models", "vocab.json")
 
 vocab = load_vocab_dict()
 model = LanguageClassifier(len(vocab))
-model.load_state_dict(torch.load("../models/best_model.pth"))
+model.load_state_dict(torch.load(MODEL_PATH))
 model.eval()
 
 label_to_language = {

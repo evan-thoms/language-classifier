@@ -156,10 +156,13 @@ def load_data():
     
     return train_sents, train_labels, val_sents, val_labels, test_sents, test_labels
 
-def create_vocab_dict(sentences, save_path=VOCAB_PATH):
+def create_vocab_dict(sentences, path=VOCAB_PATH):
+    if os.path.exists(path):
+        print("Vocab Dict already existst")
+        return
     vocab = create_ngram_vocab(sentences)
     vocab_dict = {ngram: i for i, ngram in enumerate(vocab)}
-    with open(save_path, "w", encoding="utf-8") as f:
+    with open(path, "w", encoding="utf-8") as f:
         json.dump(vocab_dict, f, ensure_ascii=False, indent=2)
     return vocab_dict
 

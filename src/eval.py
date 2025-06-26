@@ -2,6 +2,7 @@ import torch
 from sklearn.metrics import classification_report, confusion_matrix
 import matplotlib.pyplot as plt
 import seaborn as sns
+import os
 
 from model import LanguageClassifier
 from feature_extraction import word_to_ngram_features
@@ -9,8 +10,12 @@ from data_loader import load_data
 from data_loader import load_vocab_dict
 from train import calculate_accuracy
 
-BEST_MODEL_PATH = "../models/best_model.pth"
-VOCAB_PATH = "../models/vocab.json"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))        
+PROJECT_DIR = os.path.dirname(BASE_DIR)                      
+BEST_MODEL_PATH = os.path.join(PROJECT_DIR, "models", "best_model.pth")
+VOCAB_PATH = os.path.join(PROJECT_DIR, "models", "vocab.json")
+
+
 
 label_to_language = {
     0: "English",
@@ -46,7 +51,7 @@ def main(model_path=BEST_MODEL_PATH):
     print("\nClassification Report:")
     report = classification_report(test_targets, predicted, target_names=label_to_language.values())
     print(report)
-    with open("../eval_report.txt", "w") as f:
+    with open(PROJECT_DIR, "w") as f:
         f.write(report)
         f.write(f"Test Accuracy: {100*acc:.2f}%")
 

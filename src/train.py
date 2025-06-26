@@ -11,10 +11,12 @@ from feature_extraction import word_to_ngram_features
 from data_loader import load_data
 from data_loader import create_vocab_dict
 
-BEST_MODEL_PATH = "../models/best_model.pth"
-VOCAB_PATH = "../models/vocab.json"
-TRAINING_METADATA_PATH = "../models/training_metadata.json"
-RECENT_MODEL_PATH = '../models/recent_model.pth'
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))        
+PROJECT_DIR = os.path.dirname(BASE_DIR)                      
+BEST_MODEL_PATH = os.path.join(PROJECT_DIR, "models", "best_model.pth")
+VOCAB_PATH = os.path.join(PROJECT_DIR, "models", "vocab.json")
+RECENT_MODEL_PATH = os.path.join(PROJECT_DIR, "models", "recent_model.json")
+TRAINING_METADATA_PATH = os.path.join(PROJECT_DIR, "models", "training_metadata.json")
 
 def calculate_accuracy(predictions, targets):
     _, predicted = torch.max(predictions,1)
@@ -27,7 +29,7 @@ def save_training_metadata(val_acc, test_acc, epoch, time):
             "test_acc": test_acc,
             "epoch": epoch,
             "timestamp": time}
-    with open("../models/training_metadata.json", "w") as f:
+    with open(TRAINING_METADATA_PATH, "w") as f:
         json.dump(data, f, indent=2)
 
 def load_best_accuracy():

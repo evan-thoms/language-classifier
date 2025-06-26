@@ -4,9 +4,14 @@ from model import LanguageClassifier
 from data_loader import load_data, load_vocab_dict
 from feature_extraction import word_to_ngram_features
 import argparse
+import os
 
-BEST_MODEL_PATH = "../models/best_model.pth"
-VOCAB_PATH = "../models/vocab.json"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))        
+PROJECT_DIR = os.path.dirname(BASE_DIR)                      
+BEST_MODEL_PATH = os.path.join(PROJECT_DIR, "models", "best_model.pth")
+VOCAB_PATH = os.path.join(PROJECT_DIR, "models", "vocab.json")
+
+
 
 def predict_lang(sentence, model, vocab_dict, threshold=0.35):
     model.eval()
