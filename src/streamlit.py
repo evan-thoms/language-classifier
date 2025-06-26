@@ -6,12 +6,24 @@ from data_loader import load_vocab_dict
 import numpy as np
 import os
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))        
-PROJECT_DIR = os.path.dirname(BASE_DIR)                      
+try:
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    if BASE_DIR:
+        PROJECT_DIR = os.path.dirname(BASE_DIR)
+    else:
+        PROJECT_DIR = os.getcwd()  # Fallback to current working directory
+except:
+    PROJECT_DIR = os.getcwd()                
 MODEL_PATH = os.path.join(PROJECT_DIR, "models", "best_model.pth")
 VOCAB_PATH = os.path.join(PROJECT_DIR, "models", "vocab.json")
 
 vocab = load_vocab_dict()
+st.write("Trying path:", VOCAB_PATH)
+st.sidebar.write(f"Project Dir: {PROJECT_DIR}")
+st.sidebar.write(f"Model Path: {MODEL_PATH}")
+st.sidebar.write(f"Vocab Path: {VOCAB_PATH}")
+st.sidebar.write(f"Model exists: {os.path.exists(MODEL_PATH)}")
+st.sidebar.write(f"Vocab exists: {os.path.exists(VOCAB_PATH)}")
 model = LanguageClassifier(len(vocab))
 model.load_state_dict(torch.load(MODEL_PATH))
 model.eval()

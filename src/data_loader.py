@@ -7,10 +7,18 @@ import time
 import json
 
 from feature_extraction import create_ngram_vocab
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))        
-PROJECT_DIR = os.path.dirname(BASE_DIR)                      
+try:
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    if BASE_DIR:
+        PROJECT_DIR = os.path.dirname(BASE_DIR)
+    else:
+        PROJECT_DIR = os.getcwd()  
+except:
+    PROJECT_DIR = os.getcwd()
+                      
 MODEL_PATH = os.path.join(PROJECT_DIR, "models", "best_model.pth")
 VOCAB_PATH = os.path.join(PROJECT_DIR, "models", "vocab.json")
+
 
 
 def clean_sentences(sentence):
@@ -169,6 +177,7 @@ def create_vocab_dict(sentences, path=VOCAB_PATH):
     return vocab_dict
 
 def load_vocab_dict(path=VOCAB_PATH):
+    print(path)
     if not os.path.exists(path):
         print("Vocab Dict doesn't exist yet")
         return
