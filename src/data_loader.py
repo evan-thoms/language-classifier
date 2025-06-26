@@ -7,9 +7,11 @@ import time
 import json
 
 from feature_extraction import create_ngram_vocab
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))        
+PROJECT_DIR = os.path.dirname(BASE_DIR)                      
+MODEL_PATH = os.path.join(PROJECT_DIR, "models", "best_model.pth")
+VOCAB_PATH = os.path.join(PROJECT_DIR, "models", "vocab.json")
 
-MODEL_PATH = "../models/best_model.pth"
-VOCAB_PATH = "../models/vocab.json"
 
 def clean_sentences(sentence):
     sentence = re.sub(r'\[.*?\]', '', sentence)
