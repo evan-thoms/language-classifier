@@ -11,12 +11,8 @@ from feature_extraction import word_to_ngram_features
 from data_loader import load_data
 from data_loader import create_vocab_dict
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))        
-PROJECT_DIR = os.path.dirname(BASE_DIR)                      
-BEST_MODEL_PATH = os.path.join(PROJECT_DIR, "models", "best_model.pth")
-VOCAB_PATH = os.path.join(PROJECT_DIR, "models", "vocab.json")
-RECENT_MODEL_PATH = os.path.join(PROJECT_DIR, "models", "recent_model.json")
-TRAINING_METADATA_PATH = os.path.join(PROJECT_DIR, "models", "training_metadata.json")
+MODEL_PATH = "models/best_model.pth"
+VOCAB_PATH = "models/vocab.json"
 
 def calculate_accuracy(predictions, targets):
     _, predicted = torch.max(predictions,1)

@@ -6,11 +6,8 @@ from feature_extraction import word_to_ngram_features
 import argparse
 import os
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))        
-PROJECT_DIR = os.path.dirname(BASE_DIR)                      
-BEST_MODEL_PATH = os.path.join(PROJECT_DIR, "models", "best_model.pth")
-VOCAB_PATH = os.path.join(PROJECT_DIR, "models", "vocab.json")
-
+MODEL_PATH = "models/best_model.pth"
+VOCAB_PATH = "models/vocab.json"
 
 
 def predict_lang(sentence, model, vocab_dict, threshold=0.35):

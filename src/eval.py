@@ -10,12 +10,8 @@ from data_loader import load_data
 from data_loader import load_vocab_dict
 from train import calculate_accuracy
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))        
-PROJECT_DIR = os.path.dirname(BASE_DIR)                      
-BEST_MODEL_PATH = os.path.join(PROJECT_DIR, "models", "best_model.pth")
-VOCAB_PATH = os.path.join(PROJECT_DIR, "models", "vocab.json")
-
-
+MODEL_PATH = "models/best_model.pth"
+VOCAB_PATH = "models/vocab.json"
 
 label_to_language = {
     0: "English",
@@ -27,7 +23,7 @@ label_to_language = {
     6: "Unknown"
 }
 
-def main(model_path=BEST_MODEL_PATH):
+def main(model_path=MODEL_PATH):
     print('Evaluating model')
     vocab_dict = load_vocab_dict()
     model = LanguageClassifier(len(vocab_dict))
@@ -51,7 +47,7 @@ def main(model_path=BEST_MODEL_PATH):
     print("\nClassification Report:")
     report = classification_report(test_targets, predicted, target_names=label_to_language.values())
     print(report)
-    with open(PROJECT_DIR, "w") as f:
+    with open("/eval_report.txt", "w") as f:
         f.write(report)
         f.write(f"Test Accuracy: {100*acc:.2f}%")
 

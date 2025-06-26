@@ -5,49 +5,13 @@ from feature_extraction import word_to_ngram_features
 from data_loader import load_vocab_dict
 import numpy as np
 import os
-
-def get_project_paths():
-    """Get project paths with fallback options for different environments"""
-    try:
-        if __file__:
-            print("first")
-            base_dir = os.path.dirname(os.path.abspath(__file__))
-            project_dir = os.path.dirname(base_dir)
-        else:
-            raise AttributeError("__file__ not available")
-    except (AttributeError, TypeError):
-        current_dir = os.getcwd()
-        if current_dir.endswith('/src') or current_dir.endswith('\\src'):
-            print("endswithsrc")
-            project_dir = os.path.dirname(current_dir)
-        elif os.path.exists(os.path.join(current_dir, 'src')):
-            print("second")
-            project_dir = current_dir
-        else:
-            print("looking in project root")
-            # Try to find the project root
-            search_dir = current_dir
-            while search_dir != os.path.dirname(search_dir):
-                if (os.path.exists(os.path.join(search_dir, 'src')) and 
-                    os.path.exists(os.path.join(search_dir, 'models'))):
-                    project_dir = search_dir
-                    break
-                search_dir = os.path.dirname(search_dir)
-            else:
-                print("looking here")
-                project_dir = current_dir
-    print("making modelpaths ", project_dir)
-    model_path = os.path.join(project_dir, "models", "best_model.pth")
-    vocab_path = os.path.join(project_dir, "models", "vocab.json")
-    
-    return project_dir, model_path, vocab_path
-
-PROJECT_DIR, MODEL_PATH, VOCAB_PATH = get_project_paths()
+MODEL_PATH = "models/best_model.pth"
+VOCAB_PATH = "models/vocab.json"
                       
 
 vocab = load_vocab_dict()
 st.write("Trying path:", VOCAB_PATH)
-st.sidebar.write(f"Project Dir: {PROJECT_DIR}")
+
 st.sidebar.write(f"Model Path: {MODEL_PATH}")
 st.sidebar.write(f"Vocab Path: {VOCAB_PATH}")
 st.sidebar.write(f"Model exists: {os.path.exists(MODEL_PATH)}")
