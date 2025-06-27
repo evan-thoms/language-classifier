@@ -1,22 +1,28 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import TensorDataset, DataLoader
 import os
 import json
 import datetime
 
-from model import LanguageClassifier
+from torch.utils.data import TensorDataset, DataLoader
 from feature_extraction import word_to_ngram_features
-from data_loader import load_data
 from data_loader import create_vocab_dict
+from model import LanguageClassifier
+from data_loader import load_data
 
+
+LOCAL_MODEL_PATH = "../models/best_model.pth"
 if os.path.exists("src"):
-    MODEL_PATH = "models/best_model.pth"
     VOCAB_PATH = "models/vocab.json"
+    TRAINING_METADATA_PATH = "models/training_metadata.json"
+    BEST_MODEL_PATH = "models/best_model.pth"
+    RECENT_MODEL_PATH = "models/recent_model.pth"
 else:
-    MODEL_PATH = "../models/best_model.pth"
     VOCAB_PATH = "../models/vocab.json"
+    TRAINING_METADATA_PATH = "../models/training_metadata.json"
+    BEST_MODEL_PATH = "../models/best_model.pth"
+    RECENT_MODEL_PATH = "../models/recent_model.pth"
 
 
 #Calculates accuracy of predictions against target labels
@@ -25,6 +31,7 @@ def calculate_accuracy(predictions, targets):
     correct = (predicted == targets).sum().item()
     return correct/len(targets)
 
+#Saves training metadata to a file in /models
 def save_training_metadata(val_acc, test_acc, epoch, time):
     print("saving json data")
     data = {"best_val_acc": val_acc,
@@ -33,7 +40,8 @@ def save_training_metadata(val_acc, test_acc, epoch, time):
             "timestamp": time}
     with open(TRAINING_METADATA_PATH, "w") as f:
         json.dump(data, f, indent=2)
-
+        
+#Gets the best accuracy from the current best_model
 def load_best_accuracy():
     print("Getting previous best accuracy")
     if os.path.exists(TRAINING_METADATA_PATH):
@@ -52,8 +60,6 @@ def main():
     train_features = [word_to_ngram_features(s, vocab_dict) for s in train_sents]
     val_features = [word_to_ngram_features(s, vocab_dict) for s in val_sents]          
     test_features = [word_to_ngram_features(s, vocab_dict) for s in test_sents]
-
-
 
     train_tensor = torch.tensor(train_features, dtype=torch.float32)
     train_targets = torch.tensor(train_labels, dtype=torch.long)
@@ -76,11 +82,12 @@ def main():
     patience_counter =0
     num_epochs=100
 
+
     model = LanguageClassifier(len(vocab_dict))
     loss_fn = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=.001, weight_decay=.01)
-    print("Beginning train loop")
 
+    print("Beginning train loop")
     for epoch in range(num_epochs):
 
         model.train()
@@ -104,6 +111,7 @@ def main():
         train_acc/= len(train_loader)
         
 
+        print("Evaluating")
         model.eval()
 
         val_loss = 0.0
@@ -134,8 +142,10 @@ def main():
             print("Stopping early - Preventing overfitting")
             break
 
+    #Saving the model just trained
     torch.save(model.state_dict(), RECENT_MODEL_PATH)
 
+    print("Testing with test set")
     model.eval()
     with torch.no_grad():
         preds = model(test_tensor)
@@ -144,13 +154,13 @@ def main():
     
     best_acc = load_best_accuracy()
     time = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    print("comparing current model to the best")
+    print("Comparing current model to the best model")
     if best_val_acc>best_acc:
-        print("This model's accuracy ", best_val_acc, "is better than the previous best of ", best_acc)
+        print("This model's accuracy  ()", best_val_acc, ") is better than the previous best (", best_acc,")")
         save_training_metadata(val_acc, test_acc, epoch, time)
         torch.save(model.state_dict(), BEST_MODEL_PATH)
     else:
-        print("current accuracy ", best_val_acc, " not better than ", best_acc)
+        print("Current accuracy (", best_val_acc, ") is not better than the best (", best_acc,")")
 
     
 

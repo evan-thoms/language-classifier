@@ -1,3 +1,4 @@
+#Creates vocab of strings of length 4 for given words
 def create_ngram_vocab(words, n=4):
     all_ngrams=set()
     for word in words:
@@ -6,6 +7,7 @@ def create_ngram_vocab(words, n=4):
             all_ngrams.add(marked_word[i:i+n])
     return list(sorted(all_ngrams))
 
+#Turns a word into features based on a vocab dictionary
 def word_to_ngram_features(word, vocab_dict, n=4):
     features = [0]*len(vocab_dict)
     marked_word = f"^{word.lower()}$"

@@ -1,12 +1,13 @@
 import wikipedia
 import re
-from datasets import load_dataset
 import os
 import random
 import time
 import json
 
 from feature_extraction import create_ngram_vocab
+from datasets import load_dataset
+
 if os.path.exists("src"):
     MODEL_PATH = "models/best_model.pth"
     VOCAB_PATH = "models/vocab.json"
@@ -14,8 +15,7 @@ else:
     MODEL_PATH = "../models/best_model.pth"
     VOCAB_PATH = "../models/vocab.json"
 
-
-
+#Removes wikipedia styling and excess symbols
 def clean_sentences(sentence):
     sentence = re.sub(r'\[.*?\]', '', sentence)
     sentence = re.sub(r'\[.*?\]', '', sentence)  
@@ -23,6 +23,7 @@ def clean_sentences(sentence):
     sentence = re.sub(r'^\d+\W*$', '', sentence)
     return sentence.strip()
 
+#Retrieves sentences from wikipidia module
 def get_wikipedia_sentences(language, topics, max_sentences=200):
     print("Retrieving for language ", language)
     wikipedia.set_lang(language)
@@ -42,10 +43,12 @@ def get_wikipedia_sentences(language, topics, max_sentences=200):
             print(f"Skipping topic '{topic}' after {3} failed attempts.")
     return all_sentences
 
+#Splits text into sentences
 def sent_split(text):
     sentences = re.split(r'[.!?]+', text)
     return [s.strip() for s in sentences if len(s) > 3]
 
+#Retrieves Parallel TED Talk scripts from huggingface
 def retrieve_parallel_talks(lang):
     if lang == "en":
         spec = "en-pt"
@@ -57,7 +60,7 @@ def retrieve_parallel_talks(lang):
         target_sentences = talks['non_english']
     return target_sentences
     
-
+#Reads Parallel sentence data from file
 def load_parallel_sentences(path, samp_size=300):
     with open(path, "r", encoding='utf-8') as f:
         all_data = json.load(f)
@@ -71,6 +74,7 @@ def load_parallel_sentences(path, samp_size=300):
             sample[lang] = sentences
     return sample
 
+#Splits sentences and labels for each language into its train, validation, and test sets.
 def split_sentences_each_lang(sents, label):
     n = len(sents)
     indices = list(range(n))
@@ -89,7 +93,7 @@ def split_sentences_each_lang(sents, label):
         [sents[i] for i in test_indices],
         [label] * len(test_indices))
 
-
+#Collects data from all sources and returns sentences split by language and by set
 def load_data():
     print("Loading Data...")
     languages = ["en", "es", "fr", "pt", "it", "ro"]
@@ -161,6 +165,7 @@ def load_data():
     
     return train_sents, train_labels, val_sents, val_labels, test_sents, test_labels
 
+#Creates vocabulary dictionary
 def create_vocab_dict(sentences, path=VOCAB_PATH):
     if os.path.exists(path):
         print("Vocab Dict already existst")
@@ -171,6 +176,7 @@ def create_vocab_dict(sentences, path=VOCAB_PATH):
         json.dump(vocab_dict, f, ensure_ascii=False, indent=2)
     return vocab_dict
 
+#Loads vocabulary dictionary from file
 def load_vocab_dict(path=VOCAB_PATH):
     if not os.path.exists(path):
         print("Vocab Dict doesn't exist yet at: ", path)
@@ -178,18 +184,6 @@ def load_vocab_dict(path=VOCAB_PATH):
     with open(path, "r", encoding="utf-8") as f:
         vocab_dict = json.load(f)
     return vocab_dict
-
-# def get_vocab_dict(sentences):
-#     if not os.path.exists("../data/vocab.json"):
-#         vocab = create_ngram_vocab(sentences)
-#         vocab_dict = {ngram: i for i, ngram in enumerate(vocab)}
-#         with open("../data/vocab.json", "w", encoding="utf-8") as f:
-#             json.dump(vocab_dict, f, ensure_ascii=False, indent=2)
-#     else:
-#         with open("../data/vocab.json", "r", encoding="utf-8") as f:
-#             vocab = json.load(f)
-#         vocab_dict = {ngram: i for i, ngram in enumerate(vocab)}
-#     return vocab_dict
 
 if __name__ == "__main__":
     load_data()

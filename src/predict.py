@@ -1,15 +1,19 @@
 import torch
-from sklearn.metrics import classification_report, confusion_matrix
-from model import LanguageClassifier
-from data_loader import load_data, load_vocab_dict
-from feature_extraction import word_to_ngram_features
 import argparse
 import os
 
-MODEL_PATH = "models/best_model.pth"
-VOCAB_PATH = "models/vocab.json"
+from model import LanguageClassifier
+from data_loader import load_vocab_dict
+from feature_extraction import word_to_ngram_features
 
+if os.path.exists("src"):
+    VOCAB_PATH = "models/vocab.json"
+    MODEL_PATH = "models/best_model.pth"
+else:
+    VOCAB_PATH = "../models/vocab.json"
+    MODEL_PATH = "../models/best_model.pth"
 
+#Predicts language of a given sentence
 def predict_lang(sentence, model, vocab_dict, threshold=0.35):
     model.eval()
     features = word_to_ngram_features(sentence, vocab_dict)
@@ -45,14 +49,13 @@ def main():
         "Copiii se joacă în grădină.",
         "A laila, aia ke kilokilo o nā hōkū.",
         "pláž je teplá"
-        
     ]
 
     print("Evaluating")
     vocab_dict = load_vocab_dict()
     model = LanguageClassifier(len(vocab_dict))
 
-    model.load_state_dict(torch.load(BEST_MODEL_PATH))
+    model.load_state_dict(torch.load(MODEL_PATH))
     model.eval()
 
     label_to_language = {
@@ -64,8 +67,6 @@ def main():
         5: "Romanian",
         6: "Unknown Language"
     }
-
-    
 
     for sent in test_sentences:
         label, conf = predict_lang(sent, model, vocab_dict)

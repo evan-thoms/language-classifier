@@ -1,17 +1,21 @@
 import torch
-from sklearn.metrics import classification_report, confusion_matrix
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 
+from sklearn.metrics import classification_report, confusion_matrix
 from model import LanguageClassifier
 from feature_extraction import word_to_ngram_features
 from data_loader import load_data
 from data_loader import load_vocab_dict
 from train import calculate_accuracy
 
-MODEL_PATH = "models/best_model.pth"
-VOCAB_PATH = "models/vocab.json"
+if os.path.exists("src"):
+    VOCAB_PATH = "models/vocab.json"
+    MODEL_PATH = "models/best_model.pth"
+else:
+    VOCAB_PATH = "../models/vocab.json"
+    MODEL_PATH = "../models/best_model.pth"
 
 label_to_language = {
     0: "English",
@@ -35,8 +39,6 @@ def main(model_path=MODEL_PATH):
     test_features = [word_to_ngram_features(s, vocab_dict) for s in test_sents]
     test_tensor = torch.tensor(test_features, dtype=torch.float32)
     test_targets = torch.tensor(test_labels, dtype=torch.long)
-
-
 
     with torch.no_grad():
         pred = model(test_tensor)
