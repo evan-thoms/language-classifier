@@ -14,6 +14,7 @@ from data_loader import create_vocab_dict
 MODEL_PATH = "models/best_model.pth"
 VOCAB_PATH = "models/vocab.json"
 
+#Calculates accuracy of predictions against target labels
 def calculate_accuracy(predictions, targets):
     _, predicted = torch.max(predictions,1)
     correct = (predicted == targets).sum().item()

@@ -5,8 +5,9 @@ from feature_extraction import word_to_ngram_features
 from data_loader import load_vocab_dict
 import numpy as np
 import os
-MODEL_PATH = "models/best_model.pth"
-VOCAB_PATH = "models/vocab.json"
+
+MODEL_PATH = "https://huggingface.co/ethoms29/romance-classifier/resolve/main/best_model.pth"
+VOCAB_PATH = "../models/vocab.json"
                       
 
 vocab = load_vocab_dict()

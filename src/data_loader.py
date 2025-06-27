@@ -8,7 +8,7 @@ import json
 
 from feature_extraction import create_ngram_vocab
 MODEL_PATH = "models/best_model.pth"
-VOCAB_PATH = "models/vocab.json"
+VOCAB_PATH = "../models/vocab.json"
                       
 
 
