@@ -7,9 +7,12 @@ import time
 import json
 
 from feature_extraction import create_ngram_vocab
-MODEL_PATH = "models/best_model.pth"
-VOCAB_PATH = "../models/vocab.json"
-                      
+if os.path.exists("src"):
+    MODEL_PATH = "models/best_model.pth"
+    VOCAB_PATH = "models/vocab.json"
+else:
+    MODEL_PATH = "../models/best_model.pth"
+    VOCAB_PATH = "../models/vocab.json"
 
 
 

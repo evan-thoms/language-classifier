@@ -11,8 +11,13 @@ from feature_extraction import word_to_ngram_features
 from data_loader import load_data
 from data_loader import create_vocab_dict
 
-MODEL_PATH = "models/best_model.pth"
-VOCAB_PATH = "models/vocab.json"
+if os.path.exists("src"):
+    MODEL_PATH = "models/best_model.pth"
+    VOCAB_PATH = "models/vocab.json"
+else:
+    MODEL_PATH = "../models/best_model.pth"
+    VOCAB_PATH = "../models/vocab.json"
+
 
 #Calculates accuracy of predictions against target labels
 def calculate_accuracy(predictions, targets):
