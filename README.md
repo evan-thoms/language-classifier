@@ -1,3 +1,5 @@
+**APP STILL UNDER CONSTRUCTION**
+
 # Romance Classifier
 
 This project is a simple n-gram based language classifier that identifies inputted text in Romance languages and English. The neural net is built with PyTorch and deployed with Streamlit

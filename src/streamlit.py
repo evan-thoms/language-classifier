@@ -72,25 +72,23 @@ if sentence:
     tensor = torch.tensor([features], dtype=torch.float32)
 
     with torch.no_grad():
+        
         logits = model(tensor)
-        probs = torch.nn.functional.softmax(logits, dim=1)
-        sorted_indices = np.argsort(probs)
+        probs = torch.nn.functional.softmax(logits, dim=1).numpy()[0]
+        sorted_indices = np.argsort(probs)[::-1]
+        print(sorted_indices)
 
-        top_idx = probs[len(sorted_indices)-1]
+        top_idx = sorted_indices[0]
+        second_idx = sorted_indices[1]
+
+        top_conf = probs[top_idx]
+        second_conf = probs[second_idx]
         
 
-        pred_idx = torch.argmax(probs).item()
-       
-        confidence = probs[0][pred_idx].item()
 
-        st.write(f"**Predicted Language:** {label_to_language[pred_idx]}")
-        st.write(f"**Confidence:** {confidence:.2%}")
-        
-        confidence2 = probs[0][pred_idx].item()
-
-
-        second_pred = pred_idx
+        st.write(f"**Predicted Language:** {label_to_language[top_idx]}")
+        st.write(f"**Confidence:** {top_conf:.2%}")
 
         with st.expander("🔍 See second guess"):
-            st.write(f"Second-highest prediction: **{label_to_language[second_pred]}**")
-            st.write(f"Confidence: {confidence2:.2%}")
+            st.write(f"Second-highest prediction: **{label_to_language[second_idx]}**")
+            st.write(f"Confidence: {second_conf:.2%}")
