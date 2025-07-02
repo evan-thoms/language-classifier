@@ -100,6 +100,8 @@ def load_data():
     lang_labels = {lang:i for i,lang in enumerate(languages)}
     with open("../data/unknown_sentences.json", "r", encoding="utf-8") as f:
         unknown_sentences = json.load(f)
+    with open("../data/common_sentences.json", "r", encoding="utf-8") as f:
+        common_sentences = json.load(f)
 
     wiki_topics = {
         "en": ["History", "Computer Science", "Earth"],
@@ -144,7 +146,7 @@ def load_data():
     
 
     for lang in languages:
-        combined = wiki_data[lang] + parallel_sentences[lang]
+        combined = wiki_data[lang] + parallel_sentences[lang] + common_sentences[lang]
         label = lang_labels[lang]
         tr_s, tr_l, vl_s, vl_l, ts_s, ts_l = split_sentences_each_lang(combined, label)
         train_sents += tr_s; 
@@ -169,7 +171,7 @@ def load_data():
 def create_vocab_dict(sentences, path=VOCAB_PATH):
     if os.path.exists(path):
         print("Vocab Dict already existst")
-        return
+        return load_vocab_dict()
     vocab = create_ngram_vocab(sentences)
     vocab_dict = {ngram: i for i, ngram in enumerate(vocab)}
     with open(path, "w", encoding="utf-8") as f:

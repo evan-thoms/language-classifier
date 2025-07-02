@@ -54,6 +54,7 @@ def load_best_accuracy():
 def main():
     print("Starting Training")
     train_sents, train_labels, val_sents, val_labels, test_sents, test_labels = load_data()
+    print(train_sents+val_sents+test_sents)
     vocab_dict = create_vocab_dict(train_sents+val_sents+test_sents)
 
     print("Converting setences to ngram dictionary")

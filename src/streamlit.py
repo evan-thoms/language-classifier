@@ -60,7 +60,7 @@ with st.expander("ℹ️ About the Model"):
     
     It classifies input into one of 5 Romance languages: Spanish, French, Portuguese, Italian, or Romanian with English, and with a 7th fallback category of **Unknown**.
 
-    **Note:** This is a basic n-gram based model and not a full transformer or deep language model. It's fast and lightweight, but **may not be accurate on short, slangy, or ambiguous sentences**.
+    **Note:** Model **may not be accurate on short or slangy sentences.** This is a basic n-gram based model and not a full transformer or deep language model. It's fast and lightweight.**.
     """)
 
 sentence = st.text_input("Your sentence:")
