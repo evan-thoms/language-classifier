@@ -1,4 +1,3 @@
-**APP STILL UNDER CONSTRUCTION**
 
 # Romance Classifier
 
