@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
-#Defines model
 class LanguageClassifier(nn.Module):
     def __init__(self, input_size):
         super().__init__()
