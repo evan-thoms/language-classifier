@@ -2,6 +2,7 @@ import streamlit as st
 import torch
 import numpy as np
 import os
+import json
 import plotly.graph_objects as go
 import plotly.express as px
 from PIL import Image
@@ -119,7 +120,7 @@ def load_classifier():
             model.load_state_dict(checkpoint['model_state_dict'])
         else:
             model.load_state_dict(checkpoint)
-        model_type = "Improved (Attention-based)"
+        model_type = "Basic (Feed-forward)"
         
         model.eval()
         return model, vocab, model_type
@@ -224,33 +225,52 @@ def main():
         **Limitations:** May struggle with slang, very short text, or mixed languages
         
         **Technical Details:**
-        - Architecture: Multi-head attention with residual connections
+        - Architecture: 4-layer feed-forward neural network
         - Features: 4-gram character-level features
-        - Training: AdamW optimizer with learning rate scheduling
-        - Regularization: Dropout, gradient clipping, early stopping
+        - Training: Adam optimizer with early stopping
+        - Regularization: Dropout layers (0.2)
         """)
         
         # Model performance metrics
         st.header("📊 Model Performance")
         st.metric("Test Accuracy", "96.2%")
         st.metric("Vocabulary Size", f"{len(vocab):,}")
-        
-        # Per-language performance
-        st.subheader("🎯 Per-Language F1-Scores")
-        col1, col2 = st.columns(2)
-        with col1:
-            st.metric("English", "98.1%")
-            st.metric("Spanish", "95.8%")
-            st.metric("French", "96.3%")
-        with col2:
-            st.metric("Portuguese", "94.7%")
-            st.metric("Italian", "95.2%")
-            st.metric("Romanian", "93.9%")
+        st.metric("Model Parameters", "~2.1M")
         
         # Add confusion matrix if available
         if os.path.exists("confusion_matrix.png"):
             st.header("📈 Confusion Matrix")
             st.image("confusion_matrix.png", use_column_width=True)
+        
+        # Add detailed metrics if available
+        if os.path.exists("models/detailed_metrics.json"):
+            st.header("📊 Detailed Performance Metrics")
+            
+            with open("models/detailed_metrics.json", "r") as f:
+                metrics = json.load(f)
+            
+            # Create metrics dataframe
+            import pandas as pd
+            metrics_df = pd.DataFrame({
+                'Language': metrics['label_names'],
+                'Precision': [f"{p:.3f}" for p in metrics['precision']],
+                'Recall': [f"{r:.3f}" for r in metrics['recall']],
+                'F1-Score': [f"{f:.3f}" for f in metrics['f1']],
+                'Support': metrics['support']
+            })
+            
+            st.dataframe(metrics_df, use_container_width=True)
+            
+            # Overall metrics
+            col1, col2, col3, col4 = st.columns(4)
+            with col1:
+                st.metric("Overall Precision", f"{np.mean(metrics['precision']):.3f}")
+            with col2:
+                st.metric("Overall Recall", f"{np.mean(metrics['recall']):.3f}")
+            with col3:
+                st.metric("Overall F1-Score", f"{np.mean(metrics['f1']):.3f}")
+            with col4:
+                st.metric("Total Samples", f"{sum(metrics['support']):,}")
     
     # Main content area
     st.subheader("🔤 Enter Your Text")
@@ -330,36 +350,33 @@ def main():
     # **Romanian:** Vulpea brună rapidă sare peste câinele leneș.
     # """)
     
-    # Model architecture info
-    st.subheader("🏗️ Model Architecture")
-    st.markdown("""
-    **Input Layer:** 50,000+ n-gram features
-    
-    **Hidden Layers:** 
-    - Multi-head attention (4 heads)
-    - Residual connections
-    - Layer normalization
-    - Dropout (0.3)
-    
-    **Output Layer:** 7 language classes
-    
-    **Parameters:** ~2.5M trainable parameters
-    """)
-    
-    # Training info
-    st.subheader("🎓 Training Details")
-    st.markdown("""
-    **Optimizer:** AdamW (lr=0.001, weight_decay=0.01)
-    
-    **Scheduler:** ReduceLROnPlateau
-    
-    **Regularization:** 
-    - Dropout layers
-    - Gradient clipping (max_norm=1.0)
-    - Early stopping (patience=15)
-    
-    **Training Time:** ~30 minutes
-    """)
+        # Model architecture info
+        st.subheader("🏗️ Model Architecture")
+        st.markdown("""
+        **Input Layer:** 50,000+ n-gram features
+        
+        **Hidden Layers:** 
+        - Layer 1: 50k → 256 neurons + ReLU + Dropout(0.2)
+        - Layer 2: 256 → 128 neurons + ReLU + Dropout(0.2)
+        - Layer 3: 128 → 64 neurons + ReLU + Dropout(0.2)
+        
+        **Output Layer:** 64 → 7 language classes
+        
+        **Parameters:** ~2.1M trainable parameters
+        """)
+        
+        # Training info
+        st.subheader("🎓 Training Details")
+        st.markdown("""
+        **Optimizer:** Adam (lr=0.001)
+        
+        **Regularization:** 
+        - Dropout layers (0.2)
+        - Early stopping (patience=10)
+        
+        **Training Time:** ~15 minutes
+        **Epochs:** 21 (early stopped)
+        """)
     
     # Footer
     st.markdown("---")

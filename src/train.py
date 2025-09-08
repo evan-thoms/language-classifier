@@ -5,7 +5,7 @@ import os
 import json
 import datetime
 import numpy as np
-from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.metrics import classification_report, confusion_matrix, precision_recall_fscore_support
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -34,6 +34,47 @@ def calculate_accuracy(predictions, targets):
     _, predicted = torch.max(predictions,1)
     correct = (predicted == targets).sum().item()
     return correct/len(targets)
+
+def calculate_comprehensive_metrics(predictions, targets, label_names):
+    """Calculate comprehensive evaluation metrics"""
+    _, predicted = torch.max(predictions, 1)
+    
+    # Convert to numpy for sklearn
+    pred_np = predicted.cpu().numpy()
+    target_np = targets.cpu().numpy()
+    
+    # Calculate metrics
+    accuracy = (pred_np == target_np).mean()
+    precision, recall, f1, support = precision_recall_fscore_support(target_np, pred_np, average=None)
+    
+    # Classification report
+    report = classification_report(target_np, pred_np, target_names=label_names, output_dict=True)
+    
+    # Confusion matrix
+    cm = confusion_matrix(target_np, pred_np)
+    
+    return {
+        'accuracy': accuracy,
+        'precision': precision,
+        'recall': recall,
+        'f1': f1,
+        'support': support,
+        'classification_report': report,
+        'confusion_matrix': cm
+    }
+
+def plot_confusion_matrix(cm, label_names, save_path="confusion_matrix.png"):
+    """Plot and save confusion matrix"""
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', 
+                xticklabels=label_names, yticklabels=label_names)
+    plt.title('Confusion Matrix - Romance Language Classifier')
+    plt.ylabel('True Label')
+    plt.xlabel('Predicted Label')
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=300, bbox_inches='tight')
+    plt.close()
+    print(f"Confusion matrix saved to {save_path}")
 
 #Saves training metadata to a file in /models
 def save_training_metadata(val_acc, test_acc, epoch, time, model_type="basic"):
@@ -163,16 +204,59 @@ def main():
 
     print("Testing with test set")
     model.eval()
+    
+    # Define label names
+    label_names = ["English", "Spanish", "French", "Portuguese", "Italian", "Romanian", "Unknown"]
+    
     with torch.no_grad():
         test_preds = model(test_tensor)
         test_acc = calculate_accuracy(test_preds, test_targets)
         print(f"Test Accuracy: {test_acc * 100:.2f}%")
+        
+        # Calculate comprehensive metrics
+        print("\n" + "="*50)
+        print("COMPREHENSIVE EVALUATION METRICS")
+        print("="*50)
+        
+        metrics = calculate_comprehensive_metrics(test_preds, test_targets, label_names)
+        
+        # Print per-class metrics
+        print("\nPer-Class Performance:")
+        print("-" * 60)
+        print(f"{'Language':<12} {'Precision':<10} {'Recall':<10} {'F1-Score':<10} {'Support':<8}")
+        print("-" * 60)
+        
+        for i, lang in enumerate(label_names):
+            print(f"{lang:<12} {metrics['precision'][i]:<10.3f} {metrics['recall'][i]:<10.3f} "
+                  f"{metrics['f1'][i]:<10.3f} {metrics['support'][i]:<8}")
+        
+        # Print overall metrics
+        print("-" * 60)
+        print(f"{'Overall':<12} {metrics['precision'].mean():<10.3f} {metrics['recall'].mean():<10.3f} "
+              f"{metrics['f1'].mean():<10.3f} {metrics['support'].sum():<8}")
+        
+        # Save confusion matrix
+        plot_confusion_matrix(metrics['confusion_matrix'], label_names)
+        
+        # Save detailed metrics
+        metrics_to_save = {
+            'accuracy': float(metrics['accuracy']),
+            'precision': metrics['precision'].tolist(),
+            'recall': metrics['recall'].tolist(),
+            'f1': metrics['f1'].tolist(),
+            'support': metrics['support'].tolist(),
+            'label_names': label_names
+        }
+        
+        with open("models/detailed_metrics.json", "w") as f:
+            json.dump(metrics_to_save, f, indent=2)
 
     # Save training metadata
     time = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     save_training_metadata(val_acc, test_acc, epoch, time, "basic")
     
-    print(f"Training completed in {training_duration}")
+    print(f"\nTraining completed in {training_duration}")
+    print("Detailed metrics saved to models/detailed_metrics.json")
 
 if __name__ == "__main__":
     main()
